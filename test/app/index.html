@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
-  <head>
+  <body>
+    <h1>Full TTML implementation in DASH</h1>
+    <video id="video"
+           width="640"
+           controls autoplay>
+    </video>
+    <div>
+      <button id="video-fullscreen">Fullscreen</button>
+    </div>
     <!-- Shaka Player compiled library: -->
     <script src="/node_modules/shaka-player/dist/shaka-player.compiled.js"></script>
 
     <!-- Your application source: -->
     <script src="/dist/bundle.js"></script>
     <script src="./app.js"></script>
-  </head>
-  <body>
-    <h1>Full TTML implementation in DASH</h1>
-    <video id="video"
-           width="640"
-           poster="//shaka-player-demo.appspot.com/assets/poster.jpg"
-           controls autoplay>
-    </video>
-    <div id="videoTime">Unknown</div>
   </body>
 </html>

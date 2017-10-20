@@ -17,8 +17,13 @@ function initApp() {
 function initPlayer() {
     // Create a Player instance.
     var video = document.getElementById("video");
+    const sPlayer = subtitlePlayer.wrap(video);
+    var fullscreenButton = document.getElementById("video-fullscreen");
+    fullscreenButton.addEventListener("click", (event) => {
+        sPlayer.requestFullscreen();
+    });
 
-    caption.addTextTrack(video, "test.xml");
+    sPlayer.displayTextTrack("test.xml");
 
     var player = new shaka.Player(video);
 
@@ -31,10 +36,6 @@ function initPlayer() {
     // Try to load a manifest.
     // This is an asynchronous process.
     player.load(manifestUri).then(function() {
-        // Attach caption
-        //player.addTextTrack('http://127.0.0.1:8080/subtitles/test.xml', 'en', 'subtitles', 'application/ttml+xml', '', 'STSM');
-        //player.addTextTrack('http://127.0.0.1:8080/subtitles/test.vtt', 'en', 'subtitles', 'text/vtt', 'vtt', 'STSM');
-
         // This runs if the asynchronous load is successful.
         console.log("The video has now been loaded!");
     }).catch(onError);  // onError is executed if the asynchronous load fails.

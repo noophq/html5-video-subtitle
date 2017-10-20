@@ -26,7 +26,7 @@ let config = {
 
     output: {
         filename: "bundle.js",
-        library: "caption",
+        library: "subtitlePlayer",
         libraryTarget: "var",
         path: path.join(__dirname, "/dist"),
     },
@@ -50,7 +50,7 @@ if (nodeEnv === "development") {
             contentBase: __dirname,
             hot: true,
             open: true,
-            openPage: "/test/app",
+            openPage: "test/app",
             publicPath: "/dist/",
             watchContentBase: true,
         },

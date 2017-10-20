@@ -1,22 +1,44 @@
-
-import { SimpleDisplayer } from "lib/displayer/simple_displayer";
+import { Player, Renderer } from "lib/model/player";
 import { TTMLParser } from "lib/parser/ttml_parser";
+import { SimplePlayer } from "lib/player/simple_player";
+import { SimpleRenderer } from "lib/player/simple_renderer";
 import { fetch } from "lib/util";
 
-export function addTextTrack(
+class SubtitlePlayer {
+    private videoElement: HTMLVideoElement;
+    private player: Player;
+
+    constructor(videoElement: HTMLVideoElement) {
+        this.videoElement = videoElement;
+        const renderer = new SimpleRenderer();
+        this.player = new SimplePlayer<SimpleRenderer>(
+            this.videoElement,
+            renderer,
+        );
+    }
+
+    public requestFullscreen() {
+        this.player.requestFullscreen();
+    }
+
+    public displayTextTrack(textTrackUrl: string) {
+        // Load text track
+        fetch(textTrackUrl)
+            .then((response: any) => {
+                // Parse ttml data
+                const ttmlParser = new TTMLParser();
+                const cues = ttmlParser.parse(response);
+                this.player.loadCues(cues);
+            })
+            .catch((error: any) => {
+                console.log(error);
+            });
+    }
+
+}
+
+export function wrap(
     videoElement: HTMLVideoElement,
-    textTrackUrl: string,
 ) {
-    // Load text track
-    fetch(textTrackUrl)
-        .then((response: any) => {
-            // Parse ttml data
-            const ttmlParser = new TTMLParser();
-            const cues = ttmlParser.parse(response);
-            const simpleDisplayer = new SimpleDisplayer(videoElement);
-            simpleDisplayer.init(cues);
-        })
-        .catch((error: any) => {
-            console.log(error);
-        });
+    return new SubtitlePlayer(videoElement);
 }

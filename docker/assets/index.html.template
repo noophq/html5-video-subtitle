@@ -11,6 +11,9 @@
       poster="//shaka-player-demo.appspot.com/assets/poster.jpg"
       controls autoplay>
     </video>
+    <div>
+      <button id="video-fullscreen">Fullscreen</button>
+    </div>
     <script src="shaka-player.compiled.js"></script>
     <!-- Your application source: -->
     <script src="bundle.js"></script>

@@ -24,3 +24,18 @@ export function fetch(
         xhr.send(null);
     });
 }
+
+export function injectCSS(cssCode: string) {
+    const styleElement: any = document.createElement("style");
+    styleElement.type = "text/css";
+
+    if (styleElement.styleSheet) {
+        // IE
+        styleElement.styleSheet.cssText = cssCode;
+    } else {
+        // Other browsers
+        styleElement.innerHTML = cssCode;
+    }
+
+    document.getElementsByTagName("head")[0].appendChild(styleElement);
+}
