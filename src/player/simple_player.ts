@@ -1,5 +1,6 @@
 // requestAnimationFrame polyfill
 import * as raf from "raf";
+import ResizeObserver from "resize-observer-polyfill";
 
 import { CueFinder } from "lib/finder/cue_finder";
 import { Cue } from "lib/model/cue";
@@ -31,10 +32,11 @@ const DEFAULT_CSS = `
 .rendering-container {
     position: absolute;
     display: table;
-    top: 0;
-    left: 0;
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
+    top: 0;
+    left: 0;
     z-index: 2147483647;
     pointer-events: none;
 }
@@ -48,12 +50,14 @@ const DEFAULT_CSS = `
 }
 
 .video-wrapper.full-screen .cue {
-    font-size: 5vh;
+    font-size: 6vmin;
 }
 `;
 
 export class SimplePlayer<R extends Renderer> implements Player {
     private videoElement: HTMLVideoElement;
+    private videoWidth: number; // Width of video track
+    private videoHeight: number; // Height of video track
     private renderingAreaElement: HTMLElement;
     private videoWrapperElement: HTMLElement;
     private playerOptions: PlayerOptionList;
@@ -147,6 +151,41 @@ export class SimplePlayer<R extends Renderer> implements Player {
 
         document.addEventListener("fullscreenchange", onFullscreen);
 
+        // Get video metadata
+        this.videoElement.addEventListener("loadedmetadata", (event: any) => {
+            this.videoWidth = this.videoElement.videoWidth;
+            this.videoHeight = this.videoElement.videoHeight;
+        }, false );
+
+        const ro = new ResizeObserver((entries: any, observer: any) => {
+            // Resize rendering container to the size of video (add margins)
+            let horizontalPadding = 0;
+            let verticalPadding = 0;
+            const videoRatio = this.videoWidth / this.videoHeight;
+            console.log(this.videoElement.offsetHeight, videoRatio);
+
+            if (
+                (this.videoElement.offsetHeight * videoRatio) <
+                this.videoElement.offsetWidth
+            ) {
+                // There are horizontal black borders around video
+                horizontalPadding = (
+                    this.videoElement.offsetWidth -
+                    (this.videoElement.offsetHeight * videoRatio)) / 2;
+            } else {
+                verticalPadding = (
+                    this.videoElement.offsetHeight -
+                    (this.videoElement.offsetWidth / videoRatio)) / 2;
+            }
+
+            this.renderingAreaElement.style.paddingTop = verticalPadding + "px";
+            this.renderingAreaElement.style.paddingBottom = verticalPadding + "px";
+            this.renderingAreaElement.style.paddingLeft = horizontalPadding + "px";
+            this.renderingAreaElement.style.paddingRight = horizontalPadding + "px";
+        });
+
+        ro.observe(this.videoElement);
+
         // Inject default css
         injectCSS(DEFAULT_CSS);
 
@@ -160,7 +199,6 @@ export class SimplePlayer<R extends Renderer> implements Player {
 
         // Refresh captions every 500ms
         if (Math.abs(currentVideoTime - this.lastRefreshTime) > 500) {
-
             // Search captions to display
             const cues = this.cueFinder.findCues(currentVideoTime, currentVideoTime);
             this.renderer.clear(this.renderingAreaElement);

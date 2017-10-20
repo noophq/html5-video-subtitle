@@ -4,5 +4,4 @@ declare module "*.json" {
 }
 
 declare module "raf";
-
-declare module "axios";
+declare module "resize-observer-polyfill";
