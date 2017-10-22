@@ -31,7 +31,7 @@ const DEFAULT_CSS = `
 
 .rendering-container {
     position: absolute;
-    display: table;
+    display: block;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -39,14 +39,19 @@ const DEFAULT_CSS = `
     left: 0;
     z-index: 2147483647;
     pointer-events: none;
+    text-align: center;
 }
 
 .rendering-container .cue {
-    display: table-cell;
-    vertical-align: bottom;
+    position: absolute;
+    display: block;
+    left: 0;
+    right: 0;
+    bottom: 10%;
+    align-self: flex-end;
+    text-align: center;
     color: #ffffff;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-    text-align: center;
 }
 
 .video-wrapper.full-screen .cue {
@@ -126,7 +131,7 @@ export class SimplePlayer<R extends Renderer> implements Player {
         } else {
             // Generate random id with class name as prefix
             renderingAreaElement.id = this.playerOptions.renderingContainerClass +
-                "-" + Math.random() * 100000;
+                "-" + Math.round(Math.random() * Math.pow(10, 9));
         }
 
         // Insert new caption container
@@ -159,8 +164,11 @@ export class SimplePlayer<R extends Renderer> implements Player {
 
         const ro = new ResizeObserver((entries: any, observer: any) => {
             // Resize rendering container to the size of video (add margins)
-            let horizontalPadding = 0;
-            let verticalPadding = 0;
+            let renderingAreaLeft = 0;
+            let renderingAreaTop = 0;
+            let renderingAreaWidth = this.videoElement.offsetWidth;
+            let renderingAreaHeight = this.videoElement.offsetHeight;
+
             const videoRatio = this.videoWidth / this.videoHeight;
             console.log(this.videoElement.offsetHeight, videoRatio);
 
@@ -169,19 +177,23 @@ export class SimplePlayer<R extends Renderer> implements Player {
                 this.videoElement.offsetWidth
             ) {
                 // There are horizontal black borders around video
-                horizontalPadding = (
+                renderingAreaLeft = (
                     this.videoElement.offsetWidth -
                     (this.videoElement.offsetHeight * videoRatio)) / 2;
+                renderingAreaWidth = this.videoElement.offsetWidth -
+                    renderingAreaLeft * 2;
             } else {
-                verticalPadding = (
+                renderingAreaTop = (
                     this.videoElement.offsetHeight -
                     (this.videoElement.offsetWidth / videoRatio)) / 2;
+                renderingAreaHeight = this.videoElement.offsetHeight -
+                    renderingAreaTop * 2;
             }
 
-            this.renderingAreaElement.style.paddingTop = verticalPadding + "px";
-            this.renderingAreaElement.style.paddingBottom = verticalPadding + "px";
-            this.renderingAreaElement.style.paddingLeft = horizontalPadding + "px";
-            this.renderingAreaElement.style.paddingRight = horizontalPadding + "px";
+            this.renderingAreaElement.style.width = renderingAreaWidth + "px";
+            this.renderingAreaElement.style.height = renderingAreaHeight + "px";
+            this.renderingAreaElement.style.left = renderingAreaLeft + "px";
+            this.renderingAreaElement.style.top = renderingAreaTop + "px";
         });
 
         ro.observe(this.videoElement);
