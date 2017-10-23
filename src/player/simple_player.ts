@@ -232,7 +232,13 @@ export class SimplePlayer<R extends Renderer> implements Player {
                 if (this.lastDisplayedCueIds.indexOf(cue.id) === -1) {
                     // new cue
                     const displayableCue = {
-                        items: cue.items,
+                        items: cue.items.map((cueItem) => {
+                            return {
+                                type: cueItem.type,
+                                data: cueItem.data,
+                                style: this.cueTrack.styles[cueItem.styleId],
+                            };
+                        }),
                         region: this.cueTrack.regions[cue.regionId],
                     };
                     this.renderer.renderCue(

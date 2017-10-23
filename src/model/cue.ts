@@ -60,7 +60,7 @@ export interface Cue extends Period {
 }
 
 export interface DisplayableCue {
-    items: CueItem[];
+    items: DisplayableCueItem[];
     region?: Region;
 }
 

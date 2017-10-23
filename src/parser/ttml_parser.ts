@@ -132,6 +132,30 @@ export class TTMLParser implements Parser {
             return styles;
         }
 
+        // Search styles in child node
+        for (let i = 0; i < node.childNodes.length; i++) {
+            if (node.childNodes[i].nodeType !== Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            const childElement = (node.childNodes[i] as Element);
+
+            if (childElement.nodeName === "style") {
+                if (!childElement.hasAttribute("xml:id")) {
+                    throw new Error("no xml:id defined on style");
+                }
+
+                const id = childElement.getAttribute("xml:id");
+                let color;
+
+                if (childElement.hasAttribute("tts:color")) {
+                    color = childElement.getAttribute("tts:color");
+                }
+
+                styles[id] = ({color});
+            }
+        }
+
         return styles;
     }
 

@@ -20,6 +20,10 @@ export class SimpleRenderer implements Renderer {
             } else {
                 cueItemElement = document.createElement("span");
                 cueItemElement.innerHTML = cueItem.data;
+
+                if (cueItem.style) {
+                    cueItemElement.style.color = cueItem.style.color;
+                }
             }
 
             cueElement.appendChild(cueItemElement);

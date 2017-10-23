@@ -22,16 +22,16 @@
       <p xml:id="cue-1" region="region-1" begin="00:00:06.320" end="00:00:09.360">
         <span style="style-1">-Ellis Island,</span>
         <br/>
-        <span style="style-1">îlot de larmes et d'exil,</span>
+        <span style="style-2">îlot de larmes et d'exil,</span>
       </p>
       <p xml:id="cue-2" region="region-2" begin="00:00:09.560" end="00:00:12.320">
-        <span style="style-1">au pied de la statue de la Liberté.</span>
+        <span style="style-3">au pied de la statue de la Liberté.</span>
       </p>
       <p xml:id="cue-3" region="region-3" begin="00:00:12.520" end="00:00:14.640">
-        <span style="style-1">La porte de l'Amérique.</span>
+        <span style="style-4">La porte de l'Amérique.</span>
       </p>
       <p xml:id="cue-4" region="region-4" begin="00:00:15.800" end="00:00:17.520">
-        <span style="style-1">Pendant près de 60 ans,</span>
+        <span style="style-5">Pendant près de 60 ans,</span>
       </p>
       <p xml:id="cue-5" region="region-1" begin="00:00:17.720" end="00:00:20.520">
         <span style="style-1">Ellis Island</span>
