@@ -1,5 +1,5 @@
 import { BTree } from "lib/btree/btree";
-import { Cue } from "lib/model/cue";
+import { Cue, CueDictionary } from "lib/model/cue";
 
 export class CueFinder {
     // Key: cue start time, value: cue index
@@ -14,6 +14,12 @@ export class CueFinder {
     constructor() {
         this.startToCue = new BTree();
         this.endToCue = new BTree();
+    }
+
+    public appendCueDictionary(cues: CueDictionary): Cue[] {
+        return this.appendCues(
+            Object.keys(cues).map((key: string) => cues[key])
+        );
     }
 
     public appendCues(cues: Cue[]): Cue[] {

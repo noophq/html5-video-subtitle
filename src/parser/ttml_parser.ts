@@ -1,4 +1,14 @@
-import { Cue } from "lib/model/cue";
+import {
+    Cue,
+    CueDictionary,
+    CueItem,
+    CueItemType,
+    CueTrack,
+    Region,
+    RegionDictionary,
+    Style,
+    StyleDictionary,
+} from "lib/model/cue";
 import { Parser } from "lib/model/parser";
 
 const TIME_FORMAT = /^(\d{2,}):(\d{2}):(\d{2}):?(\d{2})?\.?(\d+)?$/;
@@ -9,7 +19,7 @@ export class TTMLParser implements Parser {
     constructor() {
         this.domParser = new DOMParser();
     }
-    public parse(data: string): Cue[] {
+    public parse(data: string): CueTrack {
         // TTML file is an XML file so use a DOM parser
         const xml = this.domParser.parseFromString(data, "text/xml");
 
@@ -32,25 +42,111 @@ export class TTMLParser implements Parser {
         const tickRate = tt.getAttribute("ttp:tickRate");
         const spaceStyle = tt.getAttribute("xml:space") || "default";
 
-        // Get cues
-        const cues = this.findCues(tt.getElementsByTagName("body")[0]);
+        // Parse regions
+        const regions = this.parseRegions(tt.getElementsByTagName("layout")[0]);
 
-        return cues;
+        // Parse styles
+        const styles = this.parseStyles(tt.getElementsByTagName("styling")[0]);
+
+        // Get cues
+        const cues = this.parseCues(tt.getElementsByTagName("body")[0]);
+
+        return {cues, styles, regions};
     }
 
-    private findCues(node: Element): Cue[] {
-        const result: Cue[] = [];
+    private parseRegions(node: Element): RegionDictionary {
+        const regions: RegionDictionary = {};
 
         if (!node) {
-            return result;
+            return regions;
         }
 
         if (!node.hasChildNodes()) {
-            return result;
+            return regions;
+        }
+
+        // Search regions in child node
+        for (let i = 0; i < node.childNodes.length; i++) {
+            if (node.childNodes[i].nodeType !== Node.ELEMENT_NODE) {
+                continue;
+            }
+
+            const childElement = (node.childNodes[i] as Element);
+
+            if (childElement.nodeName === "region") {
+                if (!childElement.hasAttribute("xml:id")) {
+                    throw new Error("no xml:id defined on region");
+                }
+
+                const id = childElement.getAttribute("xml:id");
+                let x = "0%";
+                let y = "0%";
+                let width = "100%";
+                let height = "100%";
+
+                if (childElement.hasAttribute("tts:origin")) {
+                    const nodeValue = childElement.getAttribute("tts:origin");
+
+                    if (nodeValue !== "auto") {
+                        const parts = nodeValue.split(" ");
+
+                        if (parts.length !== 2) {
+                            throw new Error("tts:origin is badly formated");
+                        }
+
+                        x = parts[0];
+                        y = parts[1];
+                    }
+                }
+
+                if (childElement.hasAttribute("tts:extent")) {
+                    const nodeValue = childElement.getAttribute("tts:extent");
+
+                    if (nodeValue !== "auto") {
+                        const parts = nodeValue.split(" ");
+
+                        if (parts.length !== 2) {
+                            throw new Error("tts:extent is badly formated");
+                        }
+
+                        width = parts[0];
+                        height = parts[1];
+                    }
+                }
+
+                regions[id] = ({x, y, width, height});
+            }
+        }
+
+        return regions;
+    }
+
+    private parseStyles(node: Element): StyleDictionary {
+        const styles: StyleDictionary = {};
+
+        if (!node) {
+            return styles;
+        }
+
+        if (!node.hasChildNodes()) {
+            return styles;
+        }
+
+        return styles;
+    }
+
+    private parseCues(node: Element): CueDictionary {
+        const cues: CueDictionary = {};
+
+        if (!node) {
+            return cues;
+        }
+
+        if (!node.hasChildNodes()) {
+            return cues;
         }
 
         // Search cues in child node
-        // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < node.childNodes.length; i++) {
             if (node.childNodes[i].nodeType !== Node.ELEMENT_NODE) {
                 continue;
@@ -60,24 +156,34 @@ export class TTMLParser implements Parser {
 
             if (childElement.hasAttribute("begin")) {
                 // This is a cue, parse it
-                result.push(this.parseCue(childElement));
+                const cue = this.parseCue(childElement);
+                cues[cue.id] = cue;
             } else {
                 // Continue to search cues
-                result.push(...
-                    this.findCues(childElement),
-                );
+                const otherCues = this.parseCues(childElement);
+
+                for (const cueId in otherCues) {
+                    cues[cueId] = otherCues[cueId];
+                }
             }
         }
 
-        return result;
+        return cues;
     }
 
-    private parseCue(node: Element) {
+    private parseCue(node: Element): Cue {
+        let regionId;
+
+        if (node.hasAttribute("region")) {
+            regionId = node.getAttribute("region");
+        }
+
         return {
             id: node.getAttribute("xml:id"),
             startTime: this.parseTime(node.getAttribute("begin")),
             endTime: this.parseTime(node.getAttribute("end")),
-            payload: this.parsePayload(node),
+            items: this.parseCueItems(node),
+            regionId,
         };
     }
 
@@ -99,32 +205,47 @@ export class TTMLParser implements Parser {
         return milliseconds;
     }
 
-    private parsePayload(node: Element) {
-        let result: string = "";
+    private parseCueItems(node: Element): CueItem[] {
+        const cueItems: CueItem[] = [];
 
         if (!node) {
-            return result;
+            return cueItems;
         }
 
         if (!node.hasChildNodes()) {
-            return result;
+            return cueItems;
         }
 
-        // Search cues in child node
+        let styleId;
+
+        if (node.hasAttribute("style")) {
+            styleId = node.getAttribute("style");
+        }
+
+        // Search cue items in child node
         for (let i = 0; i < node.childNodes.length; i++) {
             const childNode = node.childNodes[i];
+            const childElement = (node.childNodes[i] as Element);
 
-            if (childNode.nodeType === Node.TEXT_NODE) {
+            if (childNode.nodeName === "br") {
+                cueItems.push({
+                    type: CueItemType.LINE_BREAK,
+                });
+            } else if (childNode.nodeType === Node.TEXT_NODE) {
                 const content = childNode.textContent.trim();
 
                 if (content) {
-                    result += content + " ";
+                    cueItems.push({
+                        type: CueItemType.TEXT,
+                        data: content,
+                        styleId,
+                    });
                 }
             } else if (childNode.nodeType === Node.ELEMENT_NODE) {
-                result += this.parsePayload(childNode as Element);
+                cueItems.push(...this.parseCueItems(childNode as Element));
             }
         }
 
-        return result;
+        return cueItems;
     }
 }

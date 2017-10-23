@@ -1,5 +1,10 @@
 import { Period } from "lib/model/period";
 
+export enum CueItemType {
+    TEXT,
+    LINE_BREAK,
+}
+
 export enum TextAlign {
     LEFT,
     RIGHT,
@@ -18,16 +23,13 @@ export enum TextDecoration {
 }
 
 export interface Region {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    x: string;
+    y: string;
+    width: string;
+    height: string;
 }
 
-export interface Cue extends Period {
-    id: number | string;
-    payload: string;
-    region?: Region;
+export interface Style {
     textAlign?: TextAlign;
     color?: string;
     backgroundColor?: string;
@@ -36,4 +38,46 @@ export interface Cue extends Period {
     fontSize?: string;
     fontWeight?: FontWeight;
     textDecoration?: TextDecoration;
+}
+
+export interface CueItem {
+    type: CueItemType;
+    data?: string;
+    styleId?: string;
+}
+
+export interface DisplayableCueItem {
+    type: CueItemType;
+    data?: string;
+    style?: Style;
+}
+
+export interface Cue extends Period {
+    id: string;
+    items: CueItem[];
+    regionId?: string;
+    styleId?: string;
+}
+
+export interface DisplayableCue {
+    items: CueItem[];
+    region?: Region;
+}
+
+export interface CueDictionary {
+    [id: string]: Cue;
+}
+
+export interface RegionDictionary {
+    [id: string]: Region;
+}
+
+export interface StyleDictionary {
+    [id: string]: Style;
+}
+
+export interface CueTrack {
+    cues: CueDictionary;
+    regions?: RegionDictionary;
+    styles?: StyleDictionary;
 }

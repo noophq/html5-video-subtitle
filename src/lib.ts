@@ -27,8 +27,8 @@ class SubtitlePlayer {
             .then((response: any) => {
                 // Parse ttml data
                 const ttmlParser = new TTMLParser();
-                const cues = ttmlParser.parse(response);
-                this.player.loadCues(cues);
+                const cueTrack = ttmlParser.parse(response);
+                this.player.loadCueTrack(cueTrack);
             })
             .catch((error: any) => {
                 console.log(error);

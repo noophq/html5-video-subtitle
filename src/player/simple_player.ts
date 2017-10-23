@@ -3,7 +3,7 @@ import * as raf from "raf";
 import ResizeObserver from "resize-observer-polyfill";
 
 import { CueFinder } from "lib/finder/cue_finder";
-import { Cue } from "lib/model/cue";
+import { Cue, CueTrack, DisplayableCue } from "lib/model/cue";
 import { Player, PlayerOptionList, Renderer } from "lib/model/player";
 import { SimpleRenderer } from "lib/player/simple_renderer";
 import { injectCSS } from "lib/util";
@@ -66,7 +66,9 @@ export class SimplePlayer<R extends Renderer> implements Player {
     private renderingAreaElement: HTMLElement;
     private videoWrapperElement: HTMLElement;
     private playerOptions: PlayerOptionList;
+    private cueTrack: CueTrack;
     private cueFinder: CueFinder;
+    private lastDisplayedCueIds: string[];
     private lastRefreshTime: number;
     private renderer: R;
 
@@ -81,14 +83,16 @@ export class SimplePlayer<R extends Renderer> implements Player {
         this.buildVideoWrapper();
     }
 
-    public loadCues(cues: Cue[]): void {
-        // Init Cue finder
+    public loadCueTrack(cueTrack: CueTrack): void {
+        // Init
+        this.cueTrack = cueTrack;
+        this.lastDisplayedCueIds = [];
         this.lastRefreshTime = 0;
         this.cueFinder = new CueFinder();
-        this.cueFinder.appendCues(cues);
+        this.cueFinder.appendCueDictionary(cueTrack.cues);
         this.renderer.clear(this.renderingAreaElement);
 
-        // Synschronize video and cue rendering
+        // Synchronize video and cue rendering
         this.syncRendering();
     }
 
@@ -170,7 +174,6 @@ export class SimplePlayer<R extends Renderer> implements Player {
             let renderingAreaHeight = this.videoElement.offsetHeight;
 
             const videoRatio = this.videoWidth / this.videoHeight;
-            console.log(this.videoElement.offsetHeight, videoRatio);
 
             if (
                 (this.videoElement.offsetHeight * videoRatio) <
@@ -213,13 +216,33 @@ export class SimplePlayer<R extends Renderer> implements Player {
         if (Math.abs(currentVideoTime - this.lastRefreshTime) > 500) {
             // Search captions to display
             const cues = this.cueFinder.findCues(currentVideoTime, currentVideoTime);
-            this.renderer.clear(this.renderingAreaElement);
+            const displayableCueIds = cues.map((cue) => cue.id);
 
-            // FIXME: display all cues not only the last one
-            for (const cue of cues) {
-                this.renderer.renderCue(this.renderingAreaElement, cue);
+            // List of cues (ids) that are currently displayed
+            const alreadyDisplayedCueIds = displayableCueIds.filter((value) =>
+                this.lastDisplayedCueIds.indexOf(value) !== -1,
+            );
+
+            if (alreadyDisplayedCueIds.length === 0) {
+                // No more cues to display
+                this.renderer.clear(this.renderingAreaElement);
             }
 
+            for (const cue of cues) {
+                if (this.lastDisplayedCueIds.indexOf(cue.id) === -1) {
+                    // new cue
+                    const displayableCue = {
+                        items: cue.items,
+                        region: this.cueTrack.regions[cue.regionId],
+                    };
+                    this.renderer.renderCue(
+                        this.renderingAreaElement,
+                        displayableCue,
+                    );
+                }
+            }
+
+            this.lastDisplayedCueIds = displayableCueIds;
             this.lastRefreshTime = currentVideoTime;
         }
 

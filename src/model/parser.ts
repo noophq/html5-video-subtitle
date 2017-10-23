@@ -1,5 +1,5 @@
-import { Cue } from "lib/model/cue";
+import { CueTrack } from "lib/model/cue";
 
 export interface Parser {
-    parse(data: string): Cue[];
+    parse(data: string): CueTrack;
 }

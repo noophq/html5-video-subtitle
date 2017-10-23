@@ -1,4 +1,4 @@
-import { Cue } from "lib/model/cue";
+import { Cue, CueTrack, DisplayableCue } from "lib/model/cue";
 
 export interface PlayerOptionList {
     videoWrapperId?: string;
@@ -8,11 +8,11 @@ export interface PlayerOptionList {
 }
 
 export interface Player {
-    loadCues(cues: Cue[]): void;
+    loadCueTrack(cueTrack: CueTrack): void;
     requestFullscreen(): void;
 }
 
 export interface Renderer {
-    renderCue(renderingAreaElement: HTMLElement, cue: Cue): void;
+    renderCue(renderingAreaElement: HTMLElement, cue: DisplayableCue): void;
     clear(renderingAreaElement: HTMLElement): void;
 }

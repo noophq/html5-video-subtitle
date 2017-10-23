@@ -10,11 +10,12 @@ const ttmlParser = new TTMLParser();
 // Read TTML subtitle
 const ttmlFilePath = path.join(__dirname, "resources", "subtitles", "test.xml");
 const ttmlData = fs.readFileSync(ttmlFilePath, "utf8");
-const cues = ttmlParser.parse(ttmlData);
+const cueTrack = ttmlParser.parse(ttmlData);
+const cues = cueTrack.cues;
 
 // Invoke Cue cueFinder
 const cueFinder = new CueFinder();
-cueFinder.appendCues(cues);
+cueFinder.appendCueDictionary(cues);
 
 test("CueFinder.findCues - case 1", () => {
     const foundCues = cueFinder.findCues(8000, 8000);
