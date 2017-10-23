@@ -8,6 +8,7 @@ import {
     RegionDictionary,
     Style,
     StyleDictionary,
+    TextAlign,
 } from "lib/model/cue";
 import { Parser } from "lib/model/parser";
 
@@ -83,12 +84,13 @@ export class TTMLParser implements Parser {
                 let y = "0%";
                 let width = "100%";
                 let height = "100%";
+                let textAlign;
 
                 if (childElement.hasAttribute("tts:origin")) {
-                    const nodeValue = childElement.getAttribute("tts:origin");
+                    const attrValue = childElement.getAttribute("tts:origin");
 
-                    if (nodeValue !== "auto") {
-                        const parts = nodeValue.split(" ");
+                    if (attrValue !== "auto") {
+                        const parts = attrValue.split(" ");
 
                         if (parts.length !== 2) {
                             throw new Error("tts:origin is badly formated");
@@ -100,10 +102,10 @@ export class TTMLParser implements Parser {
                 }
 
                 if (childElement.hasAttribute("tts:extent")) {
-                    const nodeValue = childElement.getAttribute("tts:extent");
+                    const attrValue = childElement.getAttribute("tts:extent");
 
-                    if (nodeValue !== "auto") {
-                        const parts = nodeValue.split(" ");
+                    if (attrValue !== "auto") {
+                        const parts = attrValue.split(" ");
 
                         if (parts.length !== 2) {
                             throw new Error("tts:extent is badly formated");
@@ -114,7 +116,25 @@ export class TTMLParser implements Parser {
                     }
                 }
 
-                regions[id] = ({x, y, width, height});
+                if (childElement.hasAttribute("tts:textAlign")) {
+                    const attrValue = childElement.getAttribute("tts:textAlign");
+
+                    switch (attrValue) {
+                        case "left":
+                            textAlign = TextAlign.LEFT;
+                            break;
+                        case "center":
+                            textAlign = TextAlign.CENTER;
+                            break;
+                        case "right":
+                            textAlign = TextAlign.RIGHT;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                regions[id] = ({x, y, width, height, textAlign});
             }
         }
 
@@ -197,9 +217,14 @@ export class TTMLParser implements Parser {
 
     private parseCue(node: Element): Cue {
         let regionId;
+        let styleId;
 
         if (node.hasAttribute("region")) {
             regionId = node.getAttribute("region");
+        }
+
+        if (node.hasAttribute("style")) {
+            styleId = node.getAttribute("style");
         }
 
         return {
@@ -208,6 +233,7 @@ export class TTMLParser implements Parser {
             endTime: this.parseTime(node.getAttribute("end")),
             items: this.parseCueItems(node),
             regionId,
+            styleId,
         };
     }
 

@@ -1,4 +1,4 @@
-import { CueItemType, DisplayableCue } from "lib/model/cue";
+import { CueItemType, DisplayableCue, Style, TextAlign } from "lib/model/cue";
 import { Renderer } from "lib/model/player";
 
 export class SimpleRenderer implements Renderer {
@@ -8,22 +8,46 @@ export class SimpleRenderer implements Renderer {
     ): void {
         const cueElement = document.createElement("div");
         cueElement.className = "cue";
-        const regionHeight = Number(cue.region.height.replace("%", ""));
-        cueElement.style.bottom = (100 - regionHeight) + "%";
+
+        if (cue.region !== undefined) {
+            const regionHeight = Number(cue.region.height.replace("%", ""));
+            cueElement.style.bottom = (100 - regionHeight) + "%";
+
+            if (cue.region.textAlign !== undefined) {
+                let textAlign = "inherit";
+
+                switch (cue.region.textAlign) {
+                    case TextAlign.LEFT:
+                        textAlign = "left";
+                        break;
+                    case TextAlign.CENTER:
+                        textAlign = "center";
+                        break;
+                    case TextAlign.RIGHT:
+                        textAlign = "right";
+                        break;
+                    default:
+                        break;
+                }
+
+                cueElement.style.textAlign = textAlign;
+            }
+        }
+
+        this.applyStyle(cueElement, cue.style);
 
         // Append cue items
         for (const cueItem of cue.items) {
             let cueItemElement: HTMLElement;
 
             if (cueItem.type === CueItemType.LINE_BREAK) {
+                // Break line
                 cueItemElement = document.createElement("br");
             } else {
+                // Text cue
                 cueItemElement = document.createElement("span");
                 cueItemElement.innerHTML = cueItem.data;
-
-                if (cueItem.style) {
-                    cueItemElement.style.color = cueItem.style.color;
-                }
+                this.applyStyle(cueItemElement, cueItem.style);
             }
 
             cueElement.appendChild(cueItemElement);
@@ -35,5 +59,15 @@ export class SimpleRenderer implements Renderer {
     /* Clear renderer area */
     public clear(renderingAreaElement: HTMLElement) {
         renderingAreaElement.innerHTML = "";
+    }
+
+    private applyStyle(element: HTMLElement, style: Style) {
+        if (style === undefined) {
+            return;
+        }
+
+        if (style.color !== undefined) {
+            element.style.color = style.color;
+        }
     }
 }

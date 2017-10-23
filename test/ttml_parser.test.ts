@@ -18,5 +18,5 @@ test("TTMLParser.parse - cue", () => {
 });
 
 test("TTMLParser.parse - regions", () => {
-    expect(Object.keys(regions).length).toEqual(4);
+    expect(Object.keys(regions).length).toEqual(9);
 });

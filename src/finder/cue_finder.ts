@@ -18,7 +18,7 @@ export class CueFinder {
 
     public appendCueDictionary(cues: CueDictionary): Cue[] {
         return this.appendCues(
-            Object.keys(cues).map((key: string) => cues[key])
+            Object.keys(cues).map((key: string) => cues[key]),
         );
     }
 

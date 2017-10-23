@@ -22,13 +22,6 @@ export enum TextDecoration {
     LINE_THROUGH,
 }
 
-export interface Region {
-    x: string;
-    y: string;
-    width: string;
-    height: string;
-}
-
 export interface Style {
     textAlign?: TextAlign;
     color?: string;
@@ -38,6 +31,13 @@ export interface Style {
     fontSize?: string;
     fontWeight?: FontWeight;
     textDecoration?: TextDecoration;
+}
+
+export interface Region extends Style {
+    x: string;
+    y: string;
+    width: string;
+    height: string;
 }
 
 export interface CueItem {
@@ -62,6 +62,7 @@ export interface Cue extends Period {
 export interface DisplayableCue {
     items: DisplayableCueItem[];
     region?: Region;
+    style?: Style;
 }
 
 export interface CueDictionary {

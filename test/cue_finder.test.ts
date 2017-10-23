@@ -18,28 +18,28 @@ const cueFinder = new CueFinder();
 cueFinder.appendCueDictionary(cues);
 
 test("CueFinder.findCues - case 1", () => {
-    const foundCues = cueFinder.findCues(8000, 8000);
+    const foundCues = cueFinder.findCues(4000, 4000);
 
     expect(foundCues.length).toBe(1);
     expect(foundCues[0].id).toEqual("cue-1");
 });
 
 test("CueFinder.findCues - case 2", () => {
-    const foundCues = cueFinder.findCues(6320, 9360);
+    const foundCues = cueFinder.findCues(2320, 5360);
 
     expect(foundCues.length).toBe(1);
     expect(foundCues[0].id).toEqual("cue-1");
 });
 
 test("CueFinder.findCues - case 3", () => {
-    const foundCues = cueFinder.findCues(0, 9400);
+    const foundCues = cueFinder.findCues(0, 5400);
 
     expect(foundCues.length).toBe(1);
     expect(foundCues[0].id).toEqual("cue-1");
 });
 
 test("CueFinder.findCues - case 4", () => {
-    const foundCues = cueFinder.findCues(9200, 9400);
+    const foundCues = cueFinder.findCues(5200, 5400);
 
     expect(foundCues.length).toBe(1);
     expect(foundCues[0].id).toEqual("cue-1");
@@ -49,7 +49,7 @@ test("CueFinder.findCues - case 5", () => {
     const foundCues = cueFinder.findCues(7000, 8000);
 
     expect(foundCues.length).toBe(1);
-    expect(foundCues[0].id).toEqual("cue-1");
+    expect(foundCues[0].id).toEqual("cue-2");
 });
 
 test("CueFinder.findCues - case 6", () => {
@@ -58,6 +58,8 @@ test("CueFinder.findCues - case 6", () => {
         return cue.id;
     });
 
-    expect(foundCues.length).toBe(5);
-    expect(foundCueIds).toEqual(["cue-1", "cue-2", "cue-3", "cue-4", "cue-5"]);
+    expect(foundCues.length).toBe(7);
+    expect(foundCueIds).toEqual([
+        "cue-1", "cue-2", "cue-3", "cue-4", "cue-5", "cue-6", "cue-7",
+    ]);
 });

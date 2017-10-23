@@ -240,6 +240,7 @@ export class SimplePlayer<R extends Renderer> implements Player {
                             };
                         }),
                         region: this.cueTrack.regions[cue.regionId],
+                        style: this.cueTrack.styles[cue.styleId],
                     };
                     this.renderer.renderCue(
                         this.renderingAreaElement,
