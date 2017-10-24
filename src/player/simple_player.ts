@@ -51,6 +51,7 @@ const DEFAULT_CSS = `
     align-self: flex-end;
     text-align: center;
     color: #ffffff;
+    font-size: 1.5em;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 

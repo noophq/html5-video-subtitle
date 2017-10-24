@@ -1,4 +1,6 @@
-var manifestUri = "//bitdash-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd";
+//var manifestUri = "//bitdash-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd";
+var manifestUri = "//www-itec.uni-klu.ac.at/ftp/datasets/DASHDataset2014/" +
+     "BigBuckBunny/6sec/BigBuckBunny_6s_simple_2014_05_09.mpd";
 
 function initApp() {
     // Install built-in polyfills to patch browser incompatibilities.
