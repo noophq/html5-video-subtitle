@@ -1,6 +1,6 @@
 {
   "name": "shaka-player-ttml-plugin",
-  "version": "1.0.0",
+  "version": "0.9.0-beta.1",
   "description": "TTML plugin for shaka player",
   "main": "index.js",
   "scripts": {
