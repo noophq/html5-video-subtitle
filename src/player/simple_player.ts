@@ -1,3 +1,13 @@
+/*
+ *  This file is part of the NOOP organization .
+ *
+ *  (c) Cyrille Lebeaupin <clebeaupin@noop.fr>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ *
+ */
+
 // requestAnimationFrame polyfill
 import * as raf from "raf";
 import ResizeObserver from "resize-observer-polyfill";
