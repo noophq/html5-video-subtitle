@@ -12,8 +12,9 @@
 import * as raf from "raf";
 import ResizeObserver from "resize-observer-polyfill";
 
+import { TTMLParser } from "lib/parser/ttml_parser";
 import { CueFinder } from "lib/finder/cue_finder";
-import { Cue, CueTrack, DisplayableCue } from "lib/model/cue";
+import { Cue, CueTrack, DisplayableCue, CueTrackDictionary } from "lib/model/cue";
 import { Player, PlayerOptionList, Renderer } from "lib/model/player";
 import { SimpleRenderer } from "lib/player/simple_renderer";
 import { injectCSS } from "lib/util";
@@ -77,6 +78,7 @@ export class SimplePlayer<R extends Renderer> implements Player {
     private renderingAreaElement: HTMLElement;
     private videoWrapperElement: HTMLElement;
     private playerOptions: PlayerOptionList;
+    private cueTracks: CueTrackDictionary;
     private cueTrack: CueTrack;
     private cueFinder: CueFinder;
     private lastDisplayedCueIds: string[];
@@ -91,20 +93,59 @@ export class SimplePlayer<R extends Renderer> implements Player {
         this.videoElement = videoElement;
         this.playerOptions = playerOptions;
         this.renderer = renderer;
+        this.cueTracks = {};
         this.buildVideoWrapper();
     }
 
-    public loadCueTrack(cueTrack: CueTrack): void {
-        // Init
-        this.cueTrack = cueTrack;
+    /**
+     * @deprecated
+     * @param trackUrl Url of ttml track
+     */
+    public async displayTextTrack(trackUrl: string) {
+        await this.addCueTrack("default", trackUrl);
+        this.displayCueTrack("default");
+    }
+
+    public async addCueTrack(trackId: string, trackUrl: string): Promise<void> {
+        // Load text track
+        const response = await fetch(trackUrl);
+        const result = await response.text();
+
+        // Parse ttml data
+        const ttmlParser = new TTMLParser();
+        const cueTrack = ttmlParser.parse(result);
+        this.cueTracks[trackId] = cueTrack;
+    }
+
+    /**
+     *
+     * @param trackId
+     */
+    public displayCueTrack(trackId: string) {
+        // Get cue track to display
+        this.cueTrack = this.cueTracks[trackId];
+
+        // Refresh renderer
         this.lastDisplayedCueIds = [];
         this.lastRefreshTime = 0;
         this.cueFinder = new CueFinder();
-        this.cueFinder.appendCueDictionary(cueTrack.cues);
+        this.cueFinder.appendCueDictionary(this.cueTrack.cues);
         this.renderer.clear(this.renderingAreaElement);
 
         // Synchronize video and cue rendering
         this.syncRendering();
+    }
+
+    /**
+     * Hide all cue tracks
+     * Unregister raf
+     */
+    public hideCueTracks() {
+        this.cueTrack = null;
+        this.lastDisplayedCueIds = [];
+        this.lastRefreshTime = 0;
+        this.cueFinder = null;
+        this.renderer.clear(this.renderingAreaElement);
     }
 
     public requestFullscreen() {
@@ -220,6 +261,11 @@ export class SimplePlayer<R extends Renderer> implements Player {
     }
 
     private syncRendering(): void {
+        if (this.cueTrack === null) {
+            // Stop rendering
+            return;
+        }
+
         // Current video time
         const currentVideoTime = Math.abs(this.videoElement.currentTime * 1000);
 

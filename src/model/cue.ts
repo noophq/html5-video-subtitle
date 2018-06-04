@@ -92,3 +92,7 @@ export interface CueTrack {
     regions?: RegionDictionary;
     styles?: StyleDictionary;
 }
+
+export interface CueTrackDictionary {
+    [id: string]: CueTrack;
+}

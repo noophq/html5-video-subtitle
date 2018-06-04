@@ -18,7 +18,9 @@ export interface PlayerOptionList {
 }
 
 export interface Player {
-    loadCueTrack(cueTrack: CueTrack): void;
+    addCueTrack(trackId: string, trackUrl: string): void;
+    displayCueTrack(trackId: string): void;
+    hideCueTracks(): void;
     requestFullscreen(): void;
 }
 

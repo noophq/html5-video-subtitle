@@ -24,6 +24,15 @@ function initPlayer() {
     fullscreenButton.addEventListener("click", (event) => {
         sPlayer.requestFullscreen();
     });
+    var trackHideButton = document.getElementById("track-hide-button");
+    trackHideButton.addEventListener("click", (event) => {
+        sPlayer.hideCueTracks();
+    });
+
+    var trackDisplayButton = document.getElementById("track-display-button");
+    trackDisplayButton.addEventListener("click", (event) => {
+        sPlayer.displayCueTrack("default");
+    });
 
     sPlayer.displayTextTrack("/test/resources/subtitles/test.xml");
 
