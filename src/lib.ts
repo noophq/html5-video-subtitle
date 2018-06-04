@@ -15,13 +15,13 @@ import { SimpleRenderer } from "lib/player/simple_renderer";
 
 export function wrap(
     videoElement: HTMLVideoElement,
-    playerOptions?: any
+    playerOptions?: any,
 ) {
     const renderer = new SimpleRenderer();
     const player = new SimplePlayer<SimpleRenderer>(
         videoElement,
         renderer,
-        playerOptions
+        playerOptions,
     );
 
     return player;

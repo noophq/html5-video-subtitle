@@ -12,10 +12,10 @@
 import * as raf from "raf";
 import ResizeObserver from "resize-observer-polyfill";
 
-import { TTMLParser } from "lib/parser/ttml_parser";
 import { CueFinder } from "lib/finder/cue_finder";
-import { Cue, CueTrack, DisplayableCue, CueTrackDictionary } from "lib/model/cue";
+import { Cue, CueTrack, CueTrackDictionary, DisplayableCue } from "lib/model/cue";
 import { Player, PlayerOptionList, Renderer } from "lib/model/player";
+import { TTMLParser } from "lib/parser/ttml_parser";
 import { SimpleRenderer } from "lib/player/simple_renderer";
 import { injectCSS } from "lib/util";
 
