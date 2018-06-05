@@ -101,7 +101,18 @@ export class SimplePlayer<R extends Renderer> implements Player {
     }
 
     public destroy() {
+        // Remove listeners
         this.eventRegistry.unregisterAll();
+
+        // Remove dom created by this player
+        // Keep video element and put it in the wrapper parent node
+        this.videoWrapperElement.parentNode.appendChild(this.videoElement);
+
+        if (!this.playerOptions.videoWrapperId) {
+            this.videoWrapperElement.remove();
+        }
+
+        this.renderingAreaElement.remove();
     }
 
     /**
