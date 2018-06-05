@@ -12,6 +12,7 @@
 import * as raf from "raf";
 import ResizeObserver from "resize-observer-polyfill";
 
+import { EventRegistry } from "lib/event/registry";
 import { CueFinder } from "lib/finder/cue_finder";
 import { Cue, CueTrack, CueTrackDictionary, DisplayableCue } from "lib/model/cue";
 import { Player, PlayerOptionList, Renderer } from "lib/model/player";
@@ -73,6 +74,7 @@ const DEFAULT_CSS = `
 
 export class SimplePlayer<R extends Renderer> implements Player {
     private videoElement: HTMLVideoElement;
+    private eventRegistry: EventRegistry;
     private videoWidth: number; // Width of video track
     private videoHeight: number; // Height of video track
     private renderingAreaElement: HTMLElement;
@@ -93,8 +95,13 @@ export class SimplePlayer<R extends Renderer> implements Player {
         this.videoElement = videoElement;
         this.playerOptions = playerOptions;
         this.renderer = renderer;
+        this.eventRegistry = new EventRegistry();
         this.cueTracks = {};
         this.buildVideoWrapper();
+    }
+
+    public destroy() {
+        this.eventRegistry.unregisterAll();
     }
 
     /**
@@ -210,13 +217,23 @@ export class SimplePlayer<R extends Renderer> implements Player {
             }
         };
 
-        document.addEventListener("fullscreenchange", onFullscreen);
+        this.eventRegistry.register(
+            document,
+            "fullscreenchange",
+            onFullscreen,
+        );
 
-        // Get video metadata
-        this.videoElement.addEventListener("loadedmetadata", (event: any) => {
+        const onLoadedMetadata = (event: any) => {
             this.videoWidth = this.videoElement.videoWidth;
             this.videoHeight = this.videoElement.videoHeight;
-        }, false );
+        };
+
+        // Get video metadata
+        this.eventRegistry.register(
+            this.videoElement,
+            "loadedmetadata",
+            onLoadedMetadata,
+        );
 
         const ro = new ResizeObserver((entries: any, observer: any) => {
             // Resize rendering container to the size of video (add margins)
