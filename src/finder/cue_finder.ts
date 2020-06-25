@@ -55,7 +55,7 @@ export class CueFinder {
             this.endToCue.findInRange(end, Math.pow(2, 24)),
         );
 
-        const cueIds = new Set();
+        const cueIds = new Set<number>();
 
         startSet.forEach((cueId) => {
             if (endSet.has(cueId)) {
